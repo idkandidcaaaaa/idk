@@ -1126,8 +1126,10 @@ def build_Bbus(nb, lines):
 
 
 
-def duplicate_network(network, dup_net=1, dup_time=1, link_bus=14, link_x=0.0375):
+def duplicate_network(net, dup_net=1, dup_time=1, link_bus=14, link_x=0.0375):
     
+
+    network = copy.deepcopy(net)
     # 1) extract originals
     orig_buses = list(network.buses)
     orig_lines = list(network.lines)
@@ -1306,7 +1308,7 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
         status.append("ADMM OK")
     except Exception:
         # logs full stack trace to both file & console
-        logging.exception("❌ ADMM phase crashed")
+        logging.exception("ADMM phase crashed")
         status.append("ADMM CRASH")
 
     # ---- Centralized phase ----
@@ -1318,7 +1320,7 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
         logging.info(f"Centralized converged (t={centralized_time:.3f}s)")
         status.append("CENTRALIZED OK")
     except Exception:
-        logging.exception("❌ Centralized phase crashed")
+        logging.exception("Centralized phase crashed")
         status.append("CENTRALIZED CRASH")
 
     # --- append summary to CSV ---
@@ -1406,11 +1408,11 @@ def main():
             writer.writeheader()
 
 
-    H_vals = [2]
-    M_vals = [2]
+    H_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+    M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
     for H in H_vals:
         for M in M_vals:
-            dup_time = H % 24
+            dup_time = H % 24 +1
             dup_net = duplicate_network(
                 net, dup_net=M,
                 dup_time=dup_time,

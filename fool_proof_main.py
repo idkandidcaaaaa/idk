@@ -1294,12 +1294,12 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
     try:
         logging.info("ADMM start")
         t0 = time.time()
-        rho = 3.25
+        rho = 1
         # your call that might throw…
         _, _, _, n_iter = dc_opf_admm(
             net, H,
             rho_bus=rho * np.ones(net.nb),
-            max_iter=30000,
+            max_iter=400,
             display_dual=False,
             display=False
         )
@@ -1407,19 +1407,20 @@ def main():
             ])
             writer.writeheader()
 
-
-    H_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-    M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-    for H in H_vals:
+    for redo in range(50):
+        H_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+        M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
         for M in M_vals:
-            dup_time = H % 24 +1
-            dup_net = duplicate_network(
-                net, dup_net=M,
-                dup_time=dup_time,
-                link_bus=14,
-                link_x=0.0375
-            )
-            run_experiment(H, M, dup_net, csv_fname='summary.csv')
+            for H in H_vals:
+            
+                dup_time = H % 24 +1
+                dup_net = duplicate_network(
+                    net, dup_net=M,
+                    dup_time=dup_time,
+                    link_bus=14,
+                    link_x=0.0375
+                )
+                run_experiment(H, M, dup_net, csv_fname='summary.csv')
     
 
     

@@ -1376,8 +1376,7 @@ def main():
 
     setup_logging('results.log')
 
-    data_dir = os.path.join(os.getcwd(), 'PSCC2025', 'MP_DC_ESS', 'bus30')
-    #data_dir = os.path.join(os.getcwd(), 'PSCC2025', 'MP_DC_ESS', 'IWANT2DIE')
+    data_dir = os.path.join(os.getcwd(), 'bus30')
     gen_df, load_df, bat_df, line_df, slack_bus_idx, T = read_data(data_dir)
     net = create_net(gen_df, load_df, bat_df, line_df, slack_bus_idx, T)
 

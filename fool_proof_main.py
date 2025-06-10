@@ -18,7 +18,7 @@ import csv
 import pickle
 import re
 
-
+from math import ceil
 
 
 
@@ -104,7 +104,7 @@ class Bus():
         self.P_bus = sp.block_diag(P_blocks, format='csc')
         self.q_bus = np.concatenate(q_blocks)
         self.A_bus = sp.block_diag(A_blocks, format='csc')
-
+        
         # Store them internally since they never change
         self.l = np.concatenate(l_blocks)
         self.u = np.concatenate(u_blocks)
@@ -1294,12 +1294,12 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
     try:
         logging.info("ADMM start")
         t0 = time.time()
-        rho = 1
+        rho = 3.25
         # your call that might throw…
         _, _, _, n_iter = dc_opf_admm(
             net, H,
             rho_bus=rho * np.ones(net.nb),
-            max_iter=400,
+            max_iter=30000,
             display_dual=False,
             display=False
         )
@@ -1376,7 +1376,8 @@ def main():
 
     setup_logging('results.log')
 
-    data_dir = os.path.join(os.getcwd(), 'bus30')
+    data_dir = os.path.join(os.getcwd(), 'PSCC2025', 'MP_DC_ESS', 'bus30')
+    #data_dir = os.path.join(os.getcwd(), 'PSCC2025', 'MP_DC_ESS', 'IWANT2DIE')
     gen_df, load_df, bat_df, line_df, slack_bus_idx, T = read_data(data_dir)
     net = create_net(gen_df, load_df, bat_df, line_df, slack_bus_idx, T)
 
@@ -1406,13 +1407,12 @@ def main():
             ])
             writer.writeheader()
 
-    for redo in range(50):
-        H_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+    for repeat_simu in range(10):
+        H_vals = [5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]
         M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-        for M in M_vals:
-            for H in H_vals:
-            
-                dup_time = H % 24 +1
+        for H in H_vals:
+            for M in M_vals:
+                dup_time = ceil(H / 24)
                 dup_net = duplicate_network(
                     net, dup_net=M,
                     dup_time=dup_time,

@@ -1299,7 +1299,7 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
         _, _, _, n_iter = dc_opf_admm(
             net, H,
             rho_bus=rho * np.ones(net.nb),
-            max_iter=30000,
+            max_iter=400,
             display_dual=False,
             display=False
         )

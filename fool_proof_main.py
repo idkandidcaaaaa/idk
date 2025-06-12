@@ -1299,7 +1299,7 @@ def run_experiment(H, M, net, csv_fname='summary.csv'):
         _, _, _, n_iter = dc_opf_admm(
             net, H,
             rho_bus=rho * np.ones(net.nb),
-            max_iter=400,
+            max_iter=20,
             display_dual=False,
             display=False
         )
@@ -1407,11 +1407,19 @@ def main():
             ])
             writer.writeheader()
 
-    for repeat_simu in range(10):
-        H_vals = [5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]
-        M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-        for H in H_vals:
-            for M in M_vals:
+    H_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+    M_vals = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+    
+    n = len(H_vals)
+    m = len(M_vals)
+    
+    # Diagonal zig-zag traversal over the matrix of (H, M)
+    for diag in range(n + m - 1):  # Total number of diagonals
+        for i in range(diag + 1):
+            j = diag - i
+            if i < n and j < m:
+                H = H_vals[i]
+                M = M_vals[j]
                 dup_time = ceil(H / 24)
                 dup_net = duplicate_network(
                     net, dup_net=M,
